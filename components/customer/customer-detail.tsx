@@ -16,6 +16,7 @@ import {
 } from "@/components/matchmaker";
 import { CustomerTabs, CustomerTabPanel, type CustomerTab } from "./customer-tabs";
 import { CustomerProfileHeader } from "./customer-profile-header";
+import { CustomerJourney } from "./customer-journey";
 import { MatchCard } from "@/components/matching/match-card";
 import type { Customer, MatchCandidate, MeetingNote } from "@/types";
 import type { MatchPreferences } from "@/types/match-preferences";
@@ -41,6 +42,8 @@ export function CustomerDetail({
   return (
     <div className="space-y-6">
       <CustomerProfileHeader customer={customer} />
+
+      <CustomerJourney customer={customer} />
 
       <MatchmakerCard variant="elevated" className="overflow-hidden">
         <CustomerTabs

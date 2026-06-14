@@ -17,7 +17,16 @@ export type {
 } from "./match-suggestion";
 
 export type { MeetingNote, MeetingNoteType } from "./meeting-note";
-export type { MatchPreferences } from "./match-preferences";
+export type {
+  CustomerJourneyStage,
+  JourneyStageConfig,
+  JourneyStepState,
+} from "./customer-journey";
+export {
+  CUSTOMER_JOURNEY_STAGES,
+  getJourneyStageIndex,
+  getStepState,
+} from "./customer-journey";
 
 export type {
   CompatibilityBreakdown,
