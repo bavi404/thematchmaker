@@ -17,6 +17,7 @@ export type {
 } from "./match-suggestion";
 
 export type { MeetingNote, MeetingNoteType } from "./meeting-note";
+export type { MatchPreferences } from "./match-preferences";
 
 export type {
   CompatibilityBreakdown,

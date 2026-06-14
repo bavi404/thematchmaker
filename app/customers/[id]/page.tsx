@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import { CustomerHeader } from "@/components/customer/customer-header";
-import { CustomerProfile } from "@/components/customer/customer-profile";
+import { CustomerDetail } from "@/components/customer/customer-detail";
 import { getCustomerById } from "@/lib/data/customers";
+import { getMatchPreferencesByCustomerId } from "@/lib/data/match-preferences";
+import { getMeetingNotesByCustomerId } from "@/lib/data/meeting-notes";
 import { findMatchCandidates } from "@/lib/matching";
-import { generateCustomerInsights } from "@/lib/ai/insights";
 
 interface CustomerPageProps {
   params: Promise<{ id: string }>;
@@ -18,16 +18,15 @@ export default async function CustomerPage({ params }: CustomerPageProps) {
   }
 
   const matchCandidates = findMatchCandidates(customer);
-  const insights = generateCustomerInsights(customer);
+  const preferences = getMatchPreferencesByCustomerId(id) ?? null;
+  const notes = getMeetingNotesByCustomerId(id);
 
   return (
-    <div className="space-y-6">
-      <CustomerHeader customer={customer} />
-      <CustomerProfile
-        customer={customer}
-        matchCandidates={matchCandidates}
-        insights={insights}
-      />
-    </div>
+    <CustomerDetail
+      customer={customer}
+      matchCandidates={matchCandidates}
+      preferences={preferences}
+      notes={notes}
+    />
   );
 }
