@@ -4,8 +4,7 @@ import { motion } from "framer-motion";
 import { Heart, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MatchCard } from "@/components/matching/match-card";
-import type { Customer } from "@/types";
-import type { MatchCandidate } from "@/types";
+import type { Customer, MatchCandidate } from "@/types";
 import type { AIInsight } from "@/lib/ai/insights";
 import { getCustomerById } from "@/lib/data/customers";
 
@@ -29,58 +28,29 @@ export function CustomerProfile({
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <Card className="rounded-2xl border-rose-100/80 bg-white/80 shadow-sm">
+          <Card className="rounded-2xl border-cupid-border/80 bg-white/80 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 font-heading text-base text-rose-950">
-                <Heart className="h-4 w-4 text-rose-400" />
-                Preferences
+              <CardTitle className="flex items-center gap-2 font-heading text-base text-cupid-foreground">
+                <Heart className="h-4 w-4 text-cupid-accent" />
+                Profile Details
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-rose-300">
-                  Age Range
-                </p>
-                <p className="text-rose-800">
-                  {customer.preferences.ageRange[0]} – {customer.preferences.ageRange[1]} years
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-rose-300">
-                  Preferred Locations
-                </p>
-                <p className="text-rose-800">
-                  {customer.preferences.location.join(", ")}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-rose-300">
-                  Education
-                </p>
-                <p className="text-rose-800">{customer.preferences.education}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-rose-300">
-                  Professions
-                </p>
-                <p className="text-rose-800">
-                  {customer.preferences.profession.join(", ")}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-rose-300">
-                  Lifestyle
-                </p>
-                <p className="text-rose-800">
-                  {customer.preferences.lifestyle.join(", ")}
-                </p>
-              </div>
+              <DetailRow label="Age" value={`${customer.age} years`} />
+              <DetailRow label="Height" value={`${customer.height} cm`} />
+              <DetailRow label="Location" value={`${customer.city}, ${customer.country}`} />
+              <DetailRow label="Languages" value={customer.languages.join(", ")} />
+              <DetailRow label="Family Type" value={customer.familyType} />
+              <DetailRow label="Siblings" value={String(customer.siblings)} />
+              <DetailRow label="Wants Kids" value={customer.wantsKids ? "Yes" : "No"} />
+              <DetailRow label="Open to Pets" value={customer.openToPets ? "Yes" : "No"} />
+              <DetailRow label="Income" value={`₹${(customer.income / 100000).toFixed(1)}L`} />
             </CardContent>
           </Card>
 
-          <Card className="mt-4 rounded-2xl border-rose-100/80 bg-white/80 shadow-sm">
+          <Card className="mt-4 rounded-2xl border-cupid-border/80 bg-white/80 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 font-heading text-base text-rose-950">
+              <CardTitle className="flex items-center gap-2 font-heading text-base text-cupid-foreground">
                 <Sparkles className="h-4 w-4 text-amber-400" />
                 AI Insights
               </CardTitle>
@@ -89,15 +59,15 @@ export function CustomerProfile({
               {insights.map((insight) => (
                 <div
                   key={insight.id}
-                  className="rounded-xl border border-rose-50 bg-gradient-to-r from-rose-50/50 to-amber-50/30 p-3"
+                  className="rounded-xl border border-cupid-muted bg-gradient-to-r from-cupid-background/50 to-cupid-secondary/10 p-3"
                 >
-                  <p className="text-xs font-medium text-rose-900">
+                  <p className="text-xs font-medium text-cupid-foreground">
                     {insight.title}
                   </p>
-                  <p className="mt-1 text-[11px] leading-relaxed text-rose-600/80">
+                  <p className="mt-1 text-[11px] leading-relaxed text-cupid-muted-foreground">
                     {insight.description}
                   </p>
-                  <p className="mt-1.5 text-[10px] text-rose-400">
+                  <p className="mt-1.5 text-[10px] text-cupid-accent">
                     {Math.round(insight.confidence * 100)}% confidence
                   </p>
                 </div>
@@ -113,7 +83,7 @@ export function CustomerProfile({
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          <h3 className="mb-4 font-heading text-lg font-semibold text-rose-950">
+          <h3 className="mb-4 font-heading text-lg font-semibold text-cupid-foreground">
             Recommended Matches
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -133,6 +103,17 @@ export function CustomerProfile({
           </div>
         </motion.div>
       </div>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs font-medium uppercase tracking-wider text-cupid-accent">
+        {label}
+      </p>
+      <p className="text-cupid-foreground">{value}</p>
     </div>
   );
 }

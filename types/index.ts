@@ -1,5 +1,33 @@
-export type { Customer, CustomerStatus, CustomerTier, CustomerPreferences } from "./customer";
-export type { Match, MatchStatus, MatchCandidate } from "./match";
+export type {
+  Customer,
+  Gender,
+  CustomerStatus,
+  MaritalStatus,
+  DietPreference,
+  FamilyType,
+  ISODateString,
+} from "./customer";
+
+export { getCustomerDisplayLocation, getCustomerFullName } from "./customer";
+
+export type {
+  MatchSuggestion,
+  MatchSuggestionStatus,
+  MatchCandidate,
+} from "./match-suggestion";
+
+export type { MeetingNote, MeetingNoteType } from "./meeting-note";
+
+export type {
+  CompatibilityBreakdown,
+  CompatibilityDimension,
+  CompatibilityDimensionKey,
+  MatchScoreTier,
+} from "./compatibility";
+
+export { getMatchScoreTier } from "./compatibility";
+
+export type { Match, MatchStatus } from "./match";
 
 export interface DashboardStat {
   label: string;

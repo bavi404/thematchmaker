@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CompatibilityScore } from "@/components/matching/compatibility-score";
 import type { Customer, MatchCandidate } from "@/types";
-import { getCustomerFullName } from "@/lib/data/customers";
+import { getCustomerFullName, getCustomerDisplayLocation } from "@/lib/data/customers";
 
 interface MatchCardProps {
   candidate: MatchCandidate;
@@ -55,11 +55,11 @@ export function MatchCard({
               <div className="mt-2 space-y-1">
                 <p className="flex items-center gap-1.5 text-xs text-rose-500">
                   <Briefcase className="h-3 w-3" />
-                  {candidateCustomer.occupation}
+                  {candidateCustomer.designation}
                 </p>
                 <p className="flex items-center gap-1.5 text-xs text-rose-500">
                   <MapPin className="h-3 w-3" />
-                  {candidateCustomer.location}
+                  {getCustomerDisplayLocation(candidateCustomer)}
                 </p>
               </div>
 

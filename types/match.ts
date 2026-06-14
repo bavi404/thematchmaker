@@ -16,10 +16,3 @@ export interface Match {
   highlights: string[];
   concerns: string[];
 }
-
-export interface MatchCandidate {
-  customerId: string;
-  compatibilityScore: number;
-  highlights: string[];
-  concerns: string[];
-}
