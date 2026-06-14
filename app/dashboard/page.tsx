@@ -1,30 +1,24 @@
-import { StatsCards } from "@/components/dashboard/stats-cards";
-import { ActivityChart } from "@/components/dashboard/activity-chart";
-import { RecentMatches } from "@/components/dashboard/recent-matches";
-import { ClientList } from "@/components/dashboard/client-list";
-import { dashboardStats, activityData } from "@/lib/data/stats";
+import { DashboardMetricsCards } from "@/components/dashboard/dashboard-metrics";
+import { CustomerTable } from "@/components/dashboard/customer-table";
+import { getDashboardMetrics } from "@/lib/data/dashboard-metrics";
 
 export default function DashboardPage() {
+  const metrics = getDashboardMetrics();
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <p className="text-sm text-rose-500">
-          Welcome back, Sarah. Here is your agency overview.
+        <h2 className="font-heading text-2xl font-semibold text-cupid-foreground">
+          Agency Overview
+        </h2>
+        <p className="mt-1 text-sm text-cupid-muted-foreground">
+          Welcome back, Sarah. Monitor clients, matches, and introductions at a glance.
         </p>
       </div>
 
-      <StatsCards stats={dashboardStats} />
+      <DashboardMetricsCards metrics={metrics} />
 
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-3">
-          <ActivityChart data={activityData} />
-        </div>
-        <div className="lg:col-span-2">
-          <RecentMatches />
-        </div>
-      </div>
-
-      <ClientList />
+      <CustomerTable />
     </div>
   );
 }
