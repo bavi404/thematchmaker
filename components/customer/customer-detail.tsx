@@ -22,7 +22,8 @@ import type { Customer, MatchCandidate, MeetingNote } from "@/types";
 import type { MatchPreferences } from "@/types/match-preferences";
 import { getCustomerById } from "@/lib/data/customers";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { getSentCandidateIds } from "@/lib/match-sent";
 
 interface CustomerDetailProps {
   customer: Customer;
@@ -244,6 +245,17 @@ function RecommendedMatchesSection({
   customer: Customer;
   matchCandidates: MatchCandidate[];
 }) {
+  const [sentCandidateIds, setSentCandidateIds] = useState<Set<string>>(
+    () => new Set()
+  );
+
+  useEffect(() => {
+    setSentCandidateIds(new Set(getSentCandidateIds(customer.id)));
+  }, [customer.id]);
+
+  const handleMatchSent = useCallback((candidateId: string) => {
+    setSentCandidateIds((prev) => new Set([...prev, candidateId]));
+  }, []);
   if (matchCandidates.length === 0) {
     return (
       <p className="py-12 text-center text-sm text-cupid-muted-foreground">
@@ -272,6 +284,8 @@ function RecommendedMatchesSection({
               candidate={candidate}
               candidateCustomer={candidateCustomer}
               clientCustomer={customer}
+              isSent={sentCandidateIds.has(candidate.customerId)}
+              onMatchSent={() => handleMatchSent(candidate.customerId)}
               index={index}
             />
           );

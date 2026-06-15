@@ -21,6 +21,7 @@ import {
   MatchScoreRing,
 } from "@/components/matchmaker";
 import { CompatibilityLabelBadge } from "./compatibility-label-badge";
+import { SendMatchModal } from "./send-match-modal";
 import { generateCompatibilityExplanation } from "@/lib/matching";
 import { getCustomerPortraitUrl } from "@/lib/customer-photo";
 import type { Customer, MatchCandidate } from "@/types";
@@ -31,6 +32,8 @@ interface MatchRecommendationCardProps {
   candidate: MatchCandidate;
   candidateCustomer: Customer;
   clientCustomer: Customer;
+  isSent?: boolean;
+  onMatchSent?: () => void;
   index?: number;
   className?: string;
 }
@@ -41,10 +44,12 @@ export function MatchRecommendationCard({
   candidate,
   candidateCustomer,
   clientCustomer,
+  isSent = false,
+  onMatchSent,
   index = 0,
   className,
 }: MatchRecommendationCardProps) {
-  const [matchSent, setMatchSent] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const explanation = generateCompatibilityExplanation(
     clientCustomer,
     candidateCustomer
@@ -181,18 +186,26 @@ export function MatchRecommendationCard({
               View Profile
             </MatchmakerButton>
             <MatchmakerButton
-              variant={matchSent ? "soft" : "gradient"}
+              variant={isSent ? "soft" : "gradient"}
               size="sm"
-              className={cn("flex-1", matchSent && "pointer-events-none")}
-              disabled={matchSent}
-              onClick={() => setMatchSent(true)}
+              className={cn("flex-1", isSent && "pointer-events-none")}
+              disabled={isSent}
+              onClick={() => setModalOpen(true)}
             >
-              <Send className={cn(matchSent && "opacity-60")} />
-              {matchSent ? "Match Sent" : "Send Match"}
+              <Send className={cn(isSent && "opacity-60")} />
+              {isSent ? "Match Sent" : "Send Match"}
             </MatchmakerButton>
           </div>
         </MatchmakerCardContent>
       </MatchmakerCard>
+
+      <SendMatchModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        clientCustomer={clientCustomer}
+        candidateCustomer={candidateCustomer}
+        onSent={() => onMatchSent?.()}
+      />
     </motion.div>
   );
 }
