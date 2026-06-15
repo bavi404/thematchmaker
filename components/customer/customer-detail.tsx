@@ -17,7 +17,7 @@ import {
 import { CustomerTabs, CustomerTabPanel, type CustomerTab } from "./customer-tabs";
 import { CustomerProfileHeader } from "./customer-profile-header";
 import { CustomerJourney } from "./customer-journey";
-import { MatchCard } from "@/components/matching/match-card";
+import { MatchRecommendationCard } from "@/components/matching/match-recommendation-card";
 import type { Customer, MatchCandidate, MeetingNote } from "@/types";
 import type { MatchPreferences } from "@/types/match-preferences";
 import { getCustomerById } from "@/lib/data/customers";
@@ -253,19 +253,20 @@ function RecommendedMatchesSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <p className="mb-4 text-sm text-cupid-muted-foreground">
-        Top compatibility matches for {customer.firstName}, ranked by alignment score.
+      <p className="mb-5 text-sm text-cupid-muted-foreground">
+        Curated introductions for {customer.firstName}, ranked by compatibility
+        score and alignment on key preferences.
       </p>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {matchCandidates.map((candidate, index) => {
           const candidateCustomer = getCustomerById(candidate.customerId);
           if (!candidateCustomer) return null;
           return (
-            <MatchCard
+            <MatchRecommendationCard
               key={candidate.customerId}
               candidate={candidate}
               candidateCustomer={candidateCustomer}
-              clientName={customer.firstName}
+              clientCustomer={customer}
               index={index}
             />
           );
