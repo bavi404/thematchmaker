@@ -37,6 +37,13 @@ export type {
 
 export { getMatchScoreTier } from "./compatibility";
 
+export type {
+  CompatibilityExplanation,
+  CompatibilityLabel,
+} from "./compatibility-explanation";
+
+export { getCompatibilityLabel } from "./compatibility-explanation";
+
 export type { Match, MatchStatus } from "./match";
 
 export interface DashboardStat {
