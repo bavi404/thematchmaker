@@ -6,7 +6,6 @@ import {
   GraduationCap,
   Users,
   Heart,
-  StickyNote,
 } from "lucide-react";
 import {
   MatchmakerCard,
@@ -17,6 +16,7 @@ import {
 import { CustomerTabs, CustomerTabPanel, type CustomerTab } from "./customer-tabs";
 import { CustomerProfileHeader } from "./customer-profile-header";
 import { CustomerJourney } from "./customer-journey";
+import { MeetingNotesSection } from "./meeting-notes-section";
 import { MatchRecommendationCard } from "@/components/matching/match-recommendation-card";
 import type { Customer, MatchCandidate, MeetingNote } from "@/types";
 import type { MatchPreferences } from "@/types/match-preferences";
@@ -38,6 +38,7 @@ export function CustomerDetail({
   notes,
 }: CustomerDetailProps) {
   const [activeTab, setActiveTab] = useState<CustomerTab>("profile");
+  const [noteCount, setNoteCount] = useState(notes.length);
 
   return (
     <div className="space-y-6">
@@ -50,7 +51,7 @@ export function CustomerDetail({
           activeTab={activeTab}
           onTabChange={setActiveTab}
           matchCount={matchCandidates.length}
-          noteCount={notes.length}
+          noteCount={noteCount}
         />
 
         <div className="px-4 pb-6 sm:px-6">
@@ -66,7 +67,11 @@ export function CustomerDetail({
           </CustomerTabPanel>
 
           <CustomerTabPanel activeTab={activeTab} tab="notes">
-            <MeetingNotesSection notes={notes} />
+            <MeetingNotesSection
+              customer={customer}
+              initialNotes={notes}
+              onNoteCountChange={setNoteCount}
+            />
           </CustomerTabPanel>
         </div>
       </MatchmakerCard>
@@ -276,70 +281,6 @@ function RecommendedMatchesSection({
   );
 }
 
-function MeetingNotesSection({ notes }: { notes: MeetingNote[] }) {
-  if (notes.length === 0) {
-    return (
-      <p className="py-12 text-center text-sm text-cupid-muted-foreground">
-        No meeting notes recorded yet.
-      </p>
-    );
-  }
-
-  const typeStyles: Record<MeetingNote["type"], string> = {
-    consultation: "bg-sky-50 text-sky-700 border-sky-200",
-    introduction: "bg-rose-50 text-rose-700 border-rose-200",
-    "follow-up": "bg-amber-50 text-amber-700 border-amber-200",
-    general: "bg-cupid-muted text-cupid-foreground border-cupid-border",
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-3"
-    >
-      {notes.map((note, index) => (
-        <motion.div
-          key={note.id}
-          initial={{ opacity: 0, x: -8 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.25, delay: index * 0.05 }}
-          className="rounded-xl border border-cupid-border/60 bg-white p-4 shadow-sm"
-        >
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <StickyNote className="size-4 text-cupid-accent" />
-              <span className="text-sm font-medium text-cupid-foreground">
-                {note.authorName}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "rounded-full border px-2 py-0.5 text-[10px] font-medium capitalize",
-                  typeStyles[note.type]
-                )}
-              >
-                {note.type.replace("-", " ")}
-              </span>
-              <time
-                dateTime={note.meetingDate}
-                className="text-xs text-cupid-muted-foreground"
-              >
-                {formatDate(note.meetingDate)}
-              </time>
-            </div>
-          </div>
-          <p className="mt-3 text-sm leading-relaxed text-cupid-foreground/90">
-            {note.content}
-          </p>
-        </motion.div>
-      ))}
-    </motion.div>
-  );
-}
-
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
@@ -349,12 +290,4 @@ function formatLabel(value: string): string {
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }

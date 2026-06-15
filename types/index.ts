@@ -17,6 +17,7 @@ export type {
 } from "./match-suggestion";
 
 export type { MeetingNote, MeetingNoteType } from "./meeting-note";
+export type { MeetingNoteSummary } from "./meeting-note-summary";
 export type {
   CustomerJourneyStage,
   JourneyStageConfig,
