@@ -18,9 +18,9 @@ import { Separator } from "@/components/ui/separator";
 const mainNav = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Clients", href: "/dashboard#clients", icon: Users },
-  { title: "Matching", href: "/dashboard#matching", icon: Heart },
-  { title: "Consultations", href: "/dashboard#consultations", icon: Calendar },
-  { title: "Analytics", href: "/dashboard#analytics", icon: BarChart3 },
+  { title: "Matching", href: "/dashboard/analytics", icon: Heart },
+  { title: "Consultations", href: "/dashboard", icon: Calendar },
+  { title: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
 ];
 
 const secondaryNav = [
@@ -38,7 +38,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     if (href === "/dashboard") {
       return pathname === "/dashboard";
     }
-    return pathname.startsWith(href.split("#")[0]) && href !== "/dashboard";
+    if (href.includes("#")) {
+      return pathname === href.split("#")[0];
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   return (

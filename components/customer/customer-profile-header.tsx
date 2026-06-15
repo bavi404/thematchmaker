@@ -2,6 +2,7 @@ import { MapPin, Calendar, Mail, Phone } from "lucide-react";
 import { MatchmakerAvatar, StatusBadge } from "@/components/matchmaker";
 import type { Customer } from "@/types";
 import { getCustomerDisplayLocation, getCustomerFullName } from "@/types";
+import { formatDate } from "@/lib/formatters";
 
 interface CustomerProfileHeaderProps {
   customer: Customer;
@@ -64,12 +65,4 @@ export function CustomerProfileHeader({ customer }: CustomerProfileHeaderProps) 
       </div>
     </div>
   );
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }

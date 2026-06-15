@@ -18,7 +18,9 @@ export default function DashboardPage() {
 
       <DashboardMetricsCards metrics={metrics} />
 
-      <CustomerTable />
+      <section id="clients" aria-label="Customer directory">
+        <CustomerTable />
+      </section>
     </div>
   );
 }

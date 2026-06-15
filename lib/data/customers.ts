@@ -157,5 +157,3 @@ export const customers: Customer[] = [
 export function getCustomerById(id: string): Customer | undefined {
   return customers.find((c) => c.id === id);
 }
-
-export { getCustomerFullName, getCustomerDisplayLocation } from "@/types";

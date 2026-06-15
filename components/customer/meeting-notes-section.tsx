@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   StickyNote,
@@ -12,15 +12,19 @@ import {
   Target,
   ListChecks,
 } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   MatchmakerCard,
   MatchmakerCardContent,
   MatchmakerButton,
 } from "@/components/matchmaker";
 import type { Customer, MeetingNote } from "@/types";
-import type { MeetingNoteSummary } from "@/types/meeting-note-summary";
 import { getCustomerFullName } from "@/types";
+import type { MeetingNoteSummary } from "@/types";
 import { getSession } from "@/lib/auth";
+import { formatDate } from "@/lib/formatters";
+import { mergeNotes, saveLocalNote } from "@/lib/meeting-notes-storage";
+import { useToast } from "@/components/providers/toast-provider";
 import { cn } from "@/lib/utils";
 
 interface MeetingNoteWithSummary extends MeetingNote {
@@ -43,6 +47,11 @@ export function MeetingNotesSection({
   const [summary, setSummary] = useState<MeetingNoteSummary | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    setNotes(mergeNotes(initialNotes, customer.id) as MeetingNoteWithSummary[]);
+  }, [initialNotes, customer.id]);
 
   const updateNotes = useCallback(
     (next: MeetingNoteWithSummary[]) => {
@@ -86,6 +95,7 @@ export function MeetingNotesSection({
       }
 
       setSummary(data.summary);
+      showToast("✨ AI summary ready");
     } catch (err) {
       setSummary(null);
       setError(err instanceof Error ? err.message : "Failed to summarize note.");
@@ -118,9 +128,11 @@ export function MeetingNotesSection({
     };
 
     updateNotes([newNote, ...notes]);
+    saveLocalNote(newNote);
     setDraft("");
     setSummary(null);
     setError(null);
+    showToast("📝 Note saved successfully");
   }
 
   return (
@@ -147,7 +159,11 @@ export function MeetingNotesSection({
             </div>
           </div>
 
+          <label htmlFor="meeting-note-input" className="sr-only">
+            Meeting note for {customer.firstName}
+          </label>
           <textarea
+            id="meeting-note-input"
             value={draft}
             onChange={(e) => {
               setDraft(e.target.value);
@@ -209,9 +225,11 @@ export function MeetingNotesSection({
 
       {/* Note history */}
       {notes.length === 0 ? (
-        <p className="py-8 text-center text-sm text-cupid-muted-foreground">
-          No meeting notes recorded yet. Add your first note above.
-        </p>
+        <EmptyState
+          icon={StickyNote}
+          title="No meeting notes yet"
+          description="Record your first consultation note above to start building this client's matchmaking history."
+        />
       ) : (
         <div className="space-y-3">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-cupid-muted-foreground">
@@ -434,12 +452,4 @@ function NoteCard({
       )}
     </motion.div>
   );
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }

@@ -19,6 +19,8 @@ export type {
 export type { MeetingNote, MeetingNoteType } from "./meeting-note";
 export type { MeetingNoteSummary } from "./meeting-note-summary";
 export type { SentMatch } from "./sent-match";
+export type { MatchPreferences } from "./match-preferences";
+export type { EnrichedMatch } from "./enriched-match";
 export type {
   CustomerJourneyStage,
   JourneyStageConfig,
@@ -47,23 +49,3 @@ export type {
 export { getCompatibilityLabel } from "./compatibility-explanation";
 
 export type { Match, MatchStatus } from "./match";
-
-export interface DashboardStat {
-  label: string;
-  value: string | number;
-  change: number;
-  trend: "up" | "down" | "neutral";
-}
-
-export interface ActivityDataPoint {
-  month: string;
-  introductions: number;
-  matches: number;
-  consultations: number;
-}
-
-export interface NavItem {
-  title: string;
-  href: string;
-  icon: string;
-}

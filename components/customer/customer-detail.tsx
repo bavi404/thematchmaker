@@ -7,6 +7,7 @@ import {
   Users,
   Heart,
 } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   MatchmakerCard,
   MatchmakerCardHeader,
@@ -18,23 +19,23 @@ import { CustomerProfileHeader } from "./customer-profile-header";
 import { CustomerJourney } from "./customer-journey";
 import { MeetingNotesSection } from "./meeting-notes-section";
 import { MatchRecommendationCard } from "@/components/matching/match-recommendation-card";
-import type { Customer, MatchCandidate, MeetingNote } from "@/types";
-import type { MatchPreferences } from "@/types/match-preferences";
-import { getCustomerById } from "@/lib/data/customers";
+import type { Customer, EnrichedMatch, MeetingNote } from "@/types";
+import type { MatchPreferences } from "@/types";
+import { capitalize, formatLabel } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { getSentCandidateIds } from "@/lib/match-sent";
 
 interface CustomerDetailProps {
   customer: Customer;
-  matchCandidates: MatchCandidate[];
+  enrichedMatches: EnrichedMatch[];
   preferences: MatchPreferences | null;
   notes: MeetingNote[];
 }
 
 export function CustomerDetail({
   customer,
-  matchCandidates,
+  enrichedMatches,
   preferences,
   notes,
 }: CustomerDetailProps) {
@@ -51,7 +52,7 @@ export function CustomerDetail({
         <CustomerTabs
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          matchCount={matchCandidates.length}
+          matchCount={enrichedMatches.length}
           noteCount={noteCount}
         />
 
@@ -63,7 +64,7 @@ export function CustomerDetail({
           <CustomerTabPanel activeTab={activeTab} tab="matches">
             <RecommendedMatchesSection
               customer={customer}
-              matchCandidates={matchCandidates}
+              enrichedMatches={enrichedMatches}
             />
           </CustomerTabPanel>
 
@@ -240,10 +241,10 @@ function InfoSection({
 
 function RecommendedMatchesSection({
   customer,
-  matchCandidates,
+  enrichedMatches,
 }: {
   customer: Customer;
-  matchCandidates: MatchCandidate[];
+  enrichedMatches: EnrichedMatch[];
 }) {
   const [sentCandidateIds, setSentCandidateIds] = useState<Set<string>>(
     () => new Set()
@@ -256,11 +257,14 @@ function RecommendedMatchesSection({
   const handleMatchSent = useCallback((candidateId: string) => {
     setSentCandidateIds((prev) => new Set([...prev, candidateId]));
   }, []);
-  if (matchCandidates.length === 0) {
+
+  if (enrichedMatches.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-cupid-muted-foreground">
-        No recommended matches at this time.
-      </p>
+      <EmptyState
+        icon={Heart}
+        title="No matches yet"
+        description={`We're still curating introductions for ${customer.firstName}. Check back soon or refine match preferences in the profile tab.`}
+      />
     );
   }
 
@@ -275,33 +279,17 @@ function RecommendedMatchesSection({
         score and alignment on key preferences.
       </p>
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {matchCandidates.map((candidate, index) => {
-          const candidateCustomer = getCustomerById(candidate.customerId);
-          if (!candidateCustomer) return null;
-          return (
-            <MatchRecommendationCard
-              key={candidate.customerId}
-              candidate={candidate}
-              candidateCustomer={candidateCustomer}
-              clientCustomer={customer}
-              isSent={sentCandidateIds.has(candidate.customerId)}
-              onMatchSent={() => handleMatchSent(candidate.customerId)}
-              index={index}
-            />
-          );
-        })}
+        {enrichedMatches.map((match, index) => (
+          <MatchRecommendationCard
+            key={match.customerId}
+            match={match}
+            clientCustomer={customer}
+            isSent={sentCandidateIds.has(match.customerId)}
+            onMatchSent={() => handleMatchSent(match.customerId)}
+            index={index}
+          />
+        ))}
       </div>
     </motion.div>
   );
-}
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function formatLabel(value: string): string {
-  return value
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
 }

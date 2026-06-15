@@ -8,9 +8,11 @@ import {
   ArrowUpDown,
   ChevronRight,
   SlidersHorizontal,
+  Users,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   MatchmakerCard,
   MatchmakerCardHeader,
@@ -23,17 +25,11 @@ import { customers } from "@/lib/data/customers";
 import { allCustomerStatuses } from "@/lib/data/dashboard-metrics";
 import type { Customer, CustomerStatus } from "@/types";
 import { getCustomerFullName } from "@/types";
+import { formatMaritalStatus } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
 type SortField = "age" | "city" | "none";
 type SortDirection = "asc" | "desc";
-
-function formatMaritalStatus(status: Customer["maritalStatus"]): string {
-  return status
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
 
 export function CustomerTable() {
   const [search, setSearch] = useState("");
@@ -100,8 +96,12 @@ export function CustomerTable() {
             </div>
 
             <div className="relative w-full sm:max-w-xs">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cupid-secondary" />
+              <label htmlFor="customer-search" className="sr-only">
+                Search customers
+              </label>
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-cupid-secondary" aria-hidden />
               <Input
+                id="customer-search"
                 placeholder="Search by name, city, email…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -138,9 +138,11 @@ export function CustomerTable() {
                 "h-8 rounded-lg border-cupid-border text-xs",
                 sortField === "age" && "border-cupid-primary bg-cupid-primary/5 text-cupid-primary"
               )}
+              aria-pressed={sortField === "age"}
+              aria-label={`Sort by age${sortField === "age" ? `, ${sortDirection === "asc" ? "ascending" : "descending"}` : ""}`}
               onClick={() => toggleSort("age")}
             >
-              <ArrowUpDown className="mr-1 h-3 w-3" />
+              <ArrowUpDown className="mr-1 h-3 w-3" aria-hidden />
               Age {sortField === "age" && (sortDirection === "asc" ? "↑" : "↓")}
             </Button>
             <Button
@@ -150,57 +152,72 @@ export function CustomerTable() {
                 "h-8 rounded-lg border-cupid-border text-xs",
                 sortField === "city" && "border-cupid-primary bg-cupid-primary/5 text-cupid-primary"
               )}
+              aria-pressed={sortField === "city"}
+              aria-label={`Sort by city${sortField === "city" ? `, ${sortDirection === "asc" ? "ascending" : "descending"}` : ""}`}
               onClick={() => toggleSort("city")}
             >
-              <ArrowUpDown className="mr-1 h-3 w-3" />
+              <ArrowUpDown className="mr-1 h-3 w-3" aria-hidden />
               City {sortField === "city" && (sortDirection === "asc" ? "↑" : "↓")}
             </Button>
           </div>
         </MatchmakerCardHeader>
 
         <MatchmakerCardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-sm">
-              <thead>
-                <tr className="border-b border-cupid-border/60 bg-cupid-background/50">
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
-                    Age
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
-                    City
-                  </th>
-                  <th className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground md:table-cell">
-                    Marital Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-cupid-muted/80">
-                {filteredCustomers.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-4 py-12 text-center text-sm text-cupid-muted-foreground"
-                    >
-                      No customers match your search or filters.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredCustomers.map((customer, index) => (
-                    <CustomerRow key={customer.id} customer={customer} index={index} />
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          {filteredCustomers.length === 0 ? (
+            <div className="p-6">
+              <EmptyState
+                icon={Users}
+                title="No clients found"
+                description="Try adjusting your search or filters to find clients in your directory."
+              />
+            </div>
+          ) : (
+            <>
+              {/* Mobile card list */}
+              <div className="divide-y divide-cupid-muted/80 md:hidden">
+                {filteredCustomers.map((customer, index) => (
+                  <CustomerMobileCard
+                    key={customer.id}
+                    customer={customer}
+                    index={index}
+                  />
+                ))}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full min-w-[640px] text-sm">
+                  <thead>
+                    <tr className="border-b border-cupid-border/60 bg-cupid-background/50">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
+                        Name
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
+                        Age
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
+                        City
+                      </th>
+                      <th scope="col" className="hidden px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground md:table-cell">
+                        Marital Status
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
+                        Status
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-cupid-muted-foreground">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-cupid-muted/80">
+                    {filteredCustomers.map((customer, index) => (
+                      <CustomerRow key={customer.id} customer={customer} index={index} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </MatchmakerCardContent>
       </MatchmakerCard>
     </motion.div>
@@ -220,8 +237,9 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+        "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cupid-primary/40",
         active
           ? "border-cupid-primary bg-cupid-primary/10 text-cupid-primary"
           : "border-cupid-border bg-white text-cupid-muted-foreground hover:border-cupid-accent hover:text-cupid-foreground"
@@ -229,6 +247,47 @@ function FilterChip({
     >
       {label}
     </button>
+  );
+}
+
+function CustomerMobileCard({
+  customer,
+  index,
+}: {
+  customer: Customer;
+  index: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.25, delay: index * 0.04 }}
+      className="p-4"
+    >
+      <Link href={`/customers/${customer.id}`} className="flex items-start gap-3">
+        <MatchmakerAvatar
+          initials={`${customer.firstName[0]}${customer.lastName[0]}`}
+          size="default"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="font-medium text-cupid-foreground">
+                {getCustomerFullName(customer)}
+              </p>
+              <p className="text-xs text-cupid-muted-foreground">
+                {customer.age} · {customer.city}
+              </p>
+            </div>
+            <StatusBadge status={customer.status} size="sm" />
+          </div>
+          <p className="mt-1 text-xs text-cupid-muted-foreground">
+            {customer.designation}
+          </p>
+        </div>
+        <ChevronRight className="mt-1 size-4 shrink-0 text-cupid-accent" aria-hidden />
+      </Link>
+    </motion.div>
   );
 }
 

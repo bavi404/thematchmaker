@@ -22,15 +22,13 @@ import {
 } from "@/components/matchmaker";
 import { CompatibilityLabelBadge } from "./compatibility-label-badge";
 import { SendMatchModal } from "./send-match-modal";
-import { generateCompatibilityExplanation } from "@/lib/matching";
 import { getCustomerPortraitUrl } from "@/lib/customer-photo";
-import type { Customer, MatchCandidate } from "@/types";
+import type { Customer, EnrichedMatch } from "@/types";
 import { getCustomerFullName } from "@/types";
 import { cn } from "@/lib/utils";
 
 interface MatchRecommendationCardProps {
-  candidate: MatchCandidate;
-  candidateCustomer: Customer;
+  match: EnrichedMatch;
   clientCustomer: Customer;
   isSent?: boolean;
   onMatchSent?: () => void;
@@ -41,8 +39,7 @@ interface MatchRecommendationCardProps {
 const MAX_REASONS = 3;
 
 export function MatchRecommendationCard({
-  candidate,
-  candidateCustomer,
+  match,
   clientCustomer,
   isSent = false,
   onMatchSent,
@@ -50,26 +47,14 @@ export function MatchRecommendationCard({
   className,
 }: MatchRecommendationCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const explanation = generateCompatibilityExplanation(
-    clientCustomer,
-    candidateCustomer
-  );
+  const { candidateCustomer, explanation } = match;
   const topReasons = explanation.reasons.slice(0, MAX_REASONS);
   const portraitUrl = getCustomerPortraitUrl(candidateCustomer);
 
   const quickStats = [
-    {
-      icon: MapPin,
-      label: candidateCustomer.city,
-    },
-    {
-      icon: GraduationCap,
-      label: candidateCustomer.degree,
-    },
-    {
-      icon: Ruler,
-      label: `${candidateCustomer.height} cm`,
-    },
+    { icon: MapPin, label: candidateCustomer.city },
+    { icon: GraduationCap, label: candidateCustomer.degree },
+    { icon: Ruler, label: `${candidateCustomer.height} cm` },
     {
       icon: Baby,
       label: candidateCustomer.wantsKids ? "Wants children" : "No children",
@@ -88,7 +73,6 @@ export function MatchRecommendationCard({
         heartCorner
         className="group overflow-hidden border-cupid-border/50 bg-white p-0 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cupid-primary/15"
       >
-        {/* Photo hero */}
         <div className="relative h-52 overflow-hidden">
           <Image
             src={portraitUrl}
@@ -120,7 +104,6 @@ export function MatchRecommendationCard({
         </div>
 
         <MatchmakerCardContent className="space-y-4 p-4 pt-3.5 sm:p-5">
-          {/* Profession */}
           <div className="flex items-start gap-2.5">
             <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-cupid-primary/10">
               <Briefcase className="size-3.5 text-cupid-primary" />
@@ -135,7 +118,6 @@ export function MatchRecommendationCard({
             </div>
           </div>
 
-          {/* Compatibility reasons */}
           {topReasons.length > 0 && (
             <div className="rounded-xl border border-cupid-border/40 bg-gradient-to-br from-cupid-background/80 to-white p-3">
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-cupid-muted-foreground">
@@ -157,7 +139,6 @@ export function MatchRecommendationCard({
             </div>
           )}
 
-          {/* Quick stats */}
           <div className="grid grid-cols-2 gap-2">
             {quickStats.map(({ icon: Icon, label }) => (
               <div
@@ -172,15 +153,12 @@ export function MatchRecommendationCard({
             ))}
           </div>
 
-          {/* Actions */}
           <div className="flex gap-2 pt-0.5">
             <MatchmakerButton
               variant="outline"
               size="sm"
               className="flex-1"
-              render={
-                <Link href={`/customers/${candidate.customerId}`} />
-              }
+              render={<Link href={`/customers/${match.customerId}`} />}
             >
               <UserRound />
               View Profile
@@ -204,6 +182,7 @@ export function MatchRecommendationCard({
         onOpenChange={setModalOpen}
         clientCustomer={clientCustomer}
         candidateCustomer={candidateCustomer}
+        explanation={explanation}
         onSent={() => onMatchSent?.()}
       />
     </motion.div>

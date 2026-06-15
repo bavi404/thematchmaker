@@ -12,12 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import { MatchmakerButton, MatchScoreRing } from "@/components/matchmaker";
 import { CompatibilityLabelBadge } from "./compatibility-label-badge";
-import { generateCompatibilityExplanation } from "@/lib/matching";
 import { generateMatchIntroduction } from "@/lib/ai/generate-match-introduction";
 import { getCustomerPortraitUrl } from "@/lib/customer-photo";
 import { saveSentMatch } from "@/lib/match-sent";
 import { useToast } from "@/components/providers/toast-provider";
 import type { Customer } from "@/types";
+import type { CompatibilityExplanation } from "@/types/compatibility-explanation";
 import { getCustomerFullName } from "@/types";
 
 interface SendMatchModalProps {
@@ -25,6 +25,7 @@ interface SendMatchModalProps {
   onOpenChange: (open: boolean) => void;
   clientCustomer: Customer;
   candidateCustomer: Customer;
+  explanation: CompatibilityExplanation;
   onSent: () => void;
 }
 
@@ -33,13 +34,10 @@ export function SendMatchModal({
   onOpenChange,
   clientCustomer,
   candidateCustomer,
+  explanation,
   onSent,
 }: SendMatchModalProps) {
   const { showToast } = useToast();
-  const explanation = generateCompatibilityExplanation(
-    clientCustomer,
-    candidateCustomer
-  );
   const introduction = generateMatchIntroduction(
     clientCustomer,
     candidateCustomer,

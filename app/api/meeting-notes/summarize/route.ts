@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { summarizeMeetingNote } from "@/lib/ai/summarize-meeting-note";
+import { verifySession, unauthorizedResponse } from "@/lib/auth/verify-session";
 
 interface SummarizeRequestBody {
   noteText?: string;
   customerName?: string;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  if (!verifySession(request)) {
+    return unauthorizedResponse();
+  }
+
   try {
     const body = (await request.json()) as SummarizeRequestBody;
     const noteText = body.noteText?.trim();

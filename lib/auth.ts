@@ -1,5 +1,9 @@
+import { SESSION_COOKIE_NAME } from "./auth/constants";
+
 const AUTH_STORAGE_KEY = "matchmaker_auth";
 const REMEMBER_USERNAME_KEY = "matchmaker_remember_username";
+
+export { SESSION_COOKIE_NAME } from "./auth/constants";
 
 export const MOCK_CREDENTIALS = {
   username: "admin",
@@ -10,6 +14,18 @@ export interface AuthSession {
   isLoggedIn: boolean;
   username: string;
   loggedInAt: string;
+}
+
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
+
+function setSessionCookie(): void {
+  if (typeof document === "undefined") return;
+  document.cookie = `${SESSION_COOKIE_NAME}=1; path=/; max-age=${SESSION_MAX_AGE_SECONDS}; SameSite=Lax`;
+}
+
+function clearSessionCookie(): void {
+  if (typeof document === "undefined") return;
+  document.cookie = `${SESSION_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
 }
 
 export function login(
@@ -36,6 +52,7 @@ export function login(
   };
 
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  setSessionCookie();
 
   if (rememberMe) {
     localStorage.setItem(REMEMBER_USERNAME_KEY, MOCK_CREDENTIALS.username);
@@ -49,6 +66,7 @@ export function login(
 export function logout(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(AUTH_STORAGE_KEY);
+  clearSessionCookie();
 }
 
 export function getSession(): AuthSession | null {
@@ -66,7 +84,9 @@ export function getSession(): AuthSession | null {
 }
 
 export function isAuthenticated(): boolean {
-  return getSession() !== null;
+  if (getSession() !== null) return true;
+  if (typeof document === "undefined") return false;
+  return document.cookie.includes(`${SESSION_COOKIE_NAME}=`);
 }
 
 export function getRememberedUsername(): string {

@@ -1,0 +1,30 @@
+"use client";
+
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { isAuthenticated } from "@/lib/auth";
+
+export function AuthGuard({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      router.replace(`/login?from=${encodeURIComponent(pathname)}`);
+    }
+  }, [pathname, router]);
+
+  if (!isAuthenticated()) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-cupid-background">
+        <div
+          className="size-8 animate-spin rounded-full border-2 border-cupid-primary border-t-transparent"
+          role="status"
+          aria-label="Checking authentication"
+        />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
