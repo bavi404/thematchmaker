@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  Heart,
-  Calendar,
   BarChart3,
   Settings,
   Sparkles,
@@ -16,16 +14,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 const mainNav = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Clients", href: "/dashboard#clients", icon: Users },
-  { title: "Matching", href: "/dashboard/analytics", icon: Heart },
-  { title: "Consultations", href: "/dashboard", icon: Calendar },
-  { title: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-];
+  { id: "dashboard", title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { id: "clients", title: "Clients", href: "/dashboard#clients", icon: Users },
+  { id: "analytics", title: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+] as const;
 
 const secondaryNav = [
-  { title: "Settings", href: "/dashboard#settings", icon: Settings },
-];
+  { id: "settings", title: "Settings", href: "/dashboard#settings", icon: Settings },
+] as const;
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -38,8 +34,8 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     if (href === "/dashboard") {
       return pathname === "/dashboard";
     }
-    if (href.includes("#")) {
-      return pathname === href.split("#")[0];
+    if (href.startsWith("/dashboard#")) {
+      return pathname === "/dashboard";
     }
     return pathname === href || pathname.startsWith(`${href}/`);
   };
@@ -72,7 +68,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             const active = isActive(item.href);
             return (
               <Link
-                key={item.href}
+                key={item.id}
                 href={item.href}
                 onClick={onNavigate}
                 className={cn(
@@ -102,7 +98,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             const Icon = item.icon;
             return (
               <Link
-                key={item.href}
+                key={item.id}
                 href={item.href}
                 onClick={onNavigate}
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-rose-700/70 transition-all duration-200 hover:bg-rose-50/60 hover:text-rose-900"
